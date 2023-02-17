@@ -9,10 +9,11 @@ import (
 )
 
 var monitorType = map[string]int{
-	"http":    1,
-	"keyword": 2,
-	"ping":    3,
-	"port":    4,
+	"http":      1,
+	"keyword":   2,
+	"ping":      3,
+	"port":      4,
+	"heartbeat": 5,
 }
 var MonitorType = mapKeys(monitorType)
 
@@ -122,21 +123,21 @@ func (client UptimeRobotApiClient) GetMonitor(id int) (m Monitor, err error) {
 	m.ID = id
 
 	m.FriendlyName = monitor["friendly_name"].(string)
-	m.URL = monitor["url"].(string)
 	m.Type = intToString(monitorType, int(monitor["type"].(float64)))
 	m.Status = intToString(monitorStatus, int(monitor["status"].(float64)))
 	m.Interval = int(monitor["interval"].(float64))
 
-	switch m.Type {
-	case "port":
+	switch {
+	case m.Type == "port":
+		m.URL = monitor["url"].(string)
 		m.SubType = intToString(monitorSubType, int(monitor["sub_type"].(float64)))
 		if m.SubType != "custom" {
 			m.Port = 0
 		} else {
 			m.Port = int(monitor["port"].(float64))
 		}
-		break
-	case "keyword":
+	case m.Type == "keyword":
+		m.URL = monitor["url"].(string)
 		m.KeywordType = intToString(monitorKeywordType, int(monitor["keyword_type"].(float64)))
 		m.KeywordValue = monitor["keyword_value"].(string)
 
@@ -151,8 +152,8 @@ func (client UptimeRobotApiClient) GetMonitor(id int) (m Monitor, err error) {
 		// m.HTTPMethod = intToString(monitorHTTPMethod, int(monitor["http_method"].(float64)))
 		m.HTTPUsername = monitor["http_username"].(string)
 		m.HTTPPassword = monitor["http_password"].(string)
-		break
-	case "http":
+	case m.Type == "http":
+		m.URL = monitor["url"].(string)
 		if val := monitor["http_auth_type"]; val != nil {
 			// PS: There seems to be a bug in the UR api as it never returns this value
 			m.HTTPAuthType = intToString(monitorHTTPAuthType, int(val.(float64)))
@@ -164,7 +165,8 @@ func (client UptimeRobotApiClient) GetMonitor(id int) (m Monitor, err error) {
 		// m.HTTPMethod = intToString(monitorHTTPMethod, int(monitor["http_method"].(float64)))
 		m.HTTPUsername = monitor["http_username"].(string)
 		m.HTTPPassword = monitor["http_password"].(string)
-		break
+	case m.Type != "heartbeat":
+		m.URL = monitor["url"].(string)
 	}
 
 	ignoreSSLErrors := int(monitor["ssl"].(map[string]interface{})["ignore_errors"].(float64))
@@ -227,24 +229,24 @@ type MonitorCreateRequest struct {
 func (client UptimeRobotApiClient) CreateMonitor(req MonitorCreateRequest) (m Monitor, err error) {
 	data := url.Values{}
 	data.Add("friendly_name", req.FriendlyName)
-	data.Add("url", req.URL)
 	data.Add("type", fmt.Sprintf("%d", monitorType[req.Type]))
 	data.Add("interval", fmt.Sprintf("%d", req.Interval))
-	switch req.Type {
-	case "port":
+	switch {
+
+	case req.Type == "port":
+		data.Add("url", req.URL)
 		data.Add("sub_type", fmt.Sprintf("%d", monitorSubType[req.SubType]))
 		data.Add("port", fmt.Sprintf("%d", req.Port))
-		break
-	case "keyword":
+	case req.Type == "keyword":
+		data.Add("url", req.URL)
 		data.Add("keyword_type", fmt.Sprintf("%d", monitorKeywordType[req.KeywordType]))
 		data.Add("keyword_value", req.KeywordValue)
-
 		data.Add("http_method", fmt.Sprintf("%d", monitorHTTPMethod[req.HTTPMethod]))
 		data.Add("http_auth_type", fmt.Sprintf("%d", monitorHTTPAuthType[req.HTTPAuthType]))
 		data.Add("http_username", req.HTTPUsername)
 		data.Add("http_password", req.HTTPPassword)
-		break
-	case "http":
+	case req.Type == "http":
+		data.Add("url", req.URL)
 		data.Add("http_method", fmt.Sprintf("%d", monitorHTTPMethod[req.HTTPMethod]))
 		data.Add("http_auth_type", fmt.Sprintf("%d", monitorHTTPAuthType[req.HTTPAuthType]))
 		data.Add("http_username", req.HTTPUsername)
@@ -254,7 +256,8 @@ func (client UptimeRobotApiClient) CreateMonitor(req MonitorCreateRequest) (m Mo
 			data.Add("post_content_type", "0")
 			data.Add("post_value", "{}")
 		}
-		break
+	case req.Type != "heartbeat":
+		data.Add("url", req.URL)
 	}
 
 	if req.IgnoreSSLErrors {
@@ -320,29 +323,31 @@ func (client UptimeRobotApiClient) UpdateMonitor(req MonitorUpdateRequest) (m Mo
 	data := url.Values{}
 	data.Add("id", fmt.Sprintf("%d", req.ID))
 	data.Add("friendly_name", req.FriendlyName)
-	data.Add("url", req.URL)
 	data.Add("type", fmt.Sprintf("%d", monitorType[req.Type]))
 	data.Add("interval", fmt.Sprintf("%d", req.Interval))
-	switch req.Type {
-	case "port":
+	switch {
+	case req.Type == "port":
+		data.Add("url", req.URL)
 		data.Add("sub_type", fmt.Sprintf("%d", monitorSubType[req.SubType]))
 		data.Add("port", fmt.Sprintf("%d", req.Port))
 		break
-	case "keyword":
+	case req.Type == "keyword":
+		data.Add("url", req.URL)
 		data.Add("keyword_type", fmt.Sprintf("%d", monitorKeywordType[req.KeywordType]))
 		data.Add("keyword_value", req.KeywordValue)
-
 		data.Add("http_method", fmt.Sprintf("%d", monitorHTTPMethod[req.HTTPMethod]))
 		data.Add("http_auth_type", fmt.Sprintf("%d", monitorHTTPAuthType[req.HTTPAuthType]))
 		data.Add("http_username", req.HTTPUsername)
 		data.Add("http_password", req.HTTPPassword)
 		break
-	case "http":
+	case req.Type == "http":
+		data.Add("url", req.URL)
 		data.Add("http_method", fmt.Sprintf("%d", monitorHTTPMethod[req.HTTPMethod]))
 		data.Add("http_auth_type", fmt.Sprintf("%d", monitorHTTPAuthType[req.HTTPAuthType]))
 		data.Add("http_username", req.HTTPUsername)
 		data.Add("http_password", req.HTTPPassword)
-		break
+	case req.Type != "heartbeat":
+		data.Add("url", req.URL)
 	}
 
 	if req.IgnoreSSLErrors {
