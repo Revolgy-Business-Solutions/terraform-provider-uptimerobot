@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
+	uptimerobotapi "github.com/Revolgy-Business-Solutions/terraform-provider-uptimerobot/internal/provider/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	uptimerobotapi "github.com/vexxhost/terraform-provider-uptimerobot/internal/provider/api"
 )
 
 func resourceMonitor() *schema.Resource {
@@ -27,7 +27,6 @@ func resourceMonitor() *schema.Resource {
 			"url": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  nil,
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -194,6 +193,7 @@ func resourceMonitorRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	if err := updateMonitorResource(d, monitor); err != nil {
 		return err
 	}

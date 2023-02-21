@@ -5,8 +5,8 @@ import (
 	"flag"
 	"log"
 
+	"github.com/Revolgy-Business-Solutions/terraform-provider-uptimerobot/internal/provider"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/vexxhost/terraform-provider-uptimerobot/internal/provider"
 )
 
 func main() {
