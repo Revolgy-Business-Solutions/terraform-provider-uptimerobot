@@ -121,7 +121,7 @@ func resourceMonitor() *schema.Resource {
 }
 
 func resourceMonitorCreate(d *schema.ResourceData, m interface{}) error {
-	req := uptimerobotapi.MonitorRequest{
+	req := uptimerobotapi.MonitorCreateRequest{
 		FriendlyName: d.Get("friendly_name").(string),
 		URL:          d.Get("url").(string),
 		Type:         d.Get("type").(string),
@@ -206,19 +206,19 @@ func resourceMonitorUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	req := uptimerobotapi.MonitorRequest{
+	req := uptimerobotapi.MonitorUpdateRequest{
 		ID:           id,
 		FriendlyName: d.Get("friendly_name").(string),
-		URL:          d.Get("url").(string),
 		Type:         d.Get("type").(string),
 	}
 
-	switch req.Type {
-	case "port":
+	switch {
+	case req.Type == "port":
+		req.URL = d.Get("url").(string)
 		req.SubType = d.Get("sub_type").(string)
 		req.Port = d.Get("port").(int)
-		break
-	case "keyword":
+	case req.Type == "keyword":
+		req.URL = d.Get("url").(string)
 		req.KeywordType = d.Get("keyword_type").(string)
 		req.KeywordValue = d.Get("keyword_value").(string)
 
@@ -226,13 +226,14 @@ func resourceMonitorUpdate(d *schema.ResourceData, m interface{}) error {
 		req.HTTPUsername = d.Get("http_username").(string)
 		req.HTTPPassword = d.Get("http_password").(string)
 		req.HTTPAuthType = d.Get("http_auth_type").(string)
-		break
-	case "http":
+	case req.Type == "http":
+		req.URL = d.Get("url").(string)
 		req.HTTPMethod = d.Get("http_method").(string)
 		req.HTTPUsername = d.Get("http_username").(string)
 		req.HTTPPassword = d.Get("http_password").(string)
 		req.HTTPAuthType = d.Get("http_auth_type").(string)
-		break
+	case req.Type != "heartbeat":
+		req.URL = d.Get("url").(string)
 	}
 
 	// Add optional attributes
