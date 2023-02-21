@@ -16,7 +16,7 @@ func main() {
 	flag.Parse()
 
 	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/vexxhost/terraform-provider-uptimerobot",
+		err := plugin.Debug(context.Background(), "registry.terraform.io/Revolgy-Business-Solutions/terraform-provider-uptimerobot",
 			&plugin.ServeOpts{
 				ProviderFunc: provider.Provider,
 			})

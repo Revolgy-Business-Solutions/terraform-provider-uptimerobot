@@ -52,10 +52,6 @@ func dataSourceMonitorRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to find monitor by name %s", friendlyName)
 	}
 
-	if len(ids) > 1 {
-		return fmt.Errorf("More than one monitor with name %s exists", friendlyName)
-	}
-
 	monitor, err := m.(uptimerobotapi.UptimeRobotApiClient).GetMonitor(ids[0])
 	if err != nil {
 		return err
