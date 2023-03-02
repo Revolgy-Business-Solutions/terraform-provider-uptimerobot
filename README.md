@@ -5,7 +5,7 @@ terraform {
   required_providers {
     uptimerobot = {
       source = "Revolgy-Business-Solutions/uptimerobot"
-      version = "0.9.2"
+      version = "0.9.3"
     }
   }
 }
