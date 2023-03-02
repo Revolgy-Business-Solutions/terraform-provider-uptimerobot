@@ -30,6 +30,7 @@ resource "uptimerobot_monitor" "my_website" {
       - `not exists`
     - `keyword_value` - the value of the keyword.
   - *`ping`*
+  - *`heartbeat`*
   - *`port`* - will also enable the following options:
     - `sub_type` - which pre-defined port/service is monitored or if a custom port is monitored. Can be one of the following:
       - `http`
