@@ -232,7 +232,7 @@ func resourceMonitorUpdate(d *schema.ResourceData, m interface{}) error {
 		req.HTTPUsername = d.Get("http_username").(string)
 		req.HTTPPassword = d.Get("http_password").(string)
 		req.HTTPAuthType = d.Get("http_auth_type").(string)
-	case req.Type != "heartbeat":
+	case req.Type == "heartbeat":
 		req.URL = d.Get("url").(string)
 	}
 
