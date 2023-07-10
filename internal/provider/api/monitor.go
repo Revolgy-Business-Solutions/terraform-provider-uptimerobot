@@ -218,7 +218,7 @@ func (client UptimeRobotApiClient) GetMonitor(id int) (m Monitor, err error) {
 		// m.HTTPMethod = intToString(monitorHTTPMethod, int(monitor["http_method"].(float64)))
 		m.HTTPUsername = monitor["http_username"].(string)
 		m.HTTPPassword = monitor["http_password"].(string)
-	case m.Type != "heartbeat":
+	case m.Type == "heartbeat":
 		m.URL = monitor["url"].(string)
 	}
 
